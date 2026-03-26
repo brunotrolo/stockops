@@ -1,5 +1,5 @@
 var CACHE_NAME = 'stockops-v3';
-var GAS_URL    = 'https://script.google.com/macros/s/AKfycbxMsK5xzb2CCHmi3Sa4zAg_Z-GmPZmWEbN7pI_LWXykLWXPc8QB7N9z_JKRW0bCyXawwA/exec';
+var GAS_URL    = 'https://script.google.com/macros/s/AKfycbzFYVHCWG9D6lfkPuylb5_-uMY5_S0H8rcwDu9pAcXi/dev';
 var SHELL = [
   '/stockops/',
   '/stockops/index.html',

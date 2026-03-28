@@ -12,7 +12,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="OPTN CTRL">
+  <meta name="apple-mobile-web-app-title" content="StockOps">
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <style>
@@ -30,7 +30,6 @@
       gap: 0;
     }
 
-    /* Splash enquanto redireciona */
     .splash {
       display: flex;
       flex-direction: column;
@@ -45,29 +44,12 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .icon {
-      width: 96px;
-      height: 96px;
-      border-radius: 22px;
-      background: #6366f1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 32px rgba(99,102,241,0.5);
-    }
-
-    .icon span {
-      font-size: 52px;
-      font-weight: 900;
-      color: #fff;
-      line-height: 1;
-    }
-
     .app-name {
       font-size: 28px;
       font-weight: 800;
       letter-spacing: -0.03em;
       color: #f1f5f9;
+      text-align: center;
     }
 
     .app-sub {
@@ -76,7 +58,8 @@
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: #64748b;
-      margin-top: -16px;
+      margin-top: 6px;
+      text-align: center;
     }
 
     .spinner {
@@ -111,12 +94,30 @@
       white-space: nowrap;
       animation: fadeIn 0.3s ease;
     }
+
+    /* Mensagem de erro offline */
+    #msg-offline {
+      display: none;
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #dc2626;
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      white-space: nowrap;
+      animation: fadeIn 0.3s ease;
+    }
   </style>
 </head>
 <body>
 
   <div class="splash">
-    <img src="icon-192.png" alt="OPTN CTRL" style="width:96px;height:96px;border-radius:22px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+    <img src="icon-192.png" alt="StockOps" style="width:96px;height:96px;border-radius:22px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
     <div>
       <p class="app-name">StockOps</p>
       <p class="app-sub">Portfolio de Opcoes</p>
@@ -125,22 +126,14 @@
   </div>
 
   <button id="btn-instalar">Instalar App</button>
+  <div id="msg-offline">Sem conexao. Reconectando...</div>
 
   <script>
     var GAS_URL = 'https://script.google.com/macros/s/AKfycbzFYVHCWG9D6lfkPuylb5_-uMY5_S0H8rcwDu9pAcXi/dev';
 
-    // Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/stockops/sw.js', { scope: '/stockops/' })
-        .then(function(reg) {
-          console.log('[SW] Registrado. Scope:', reg.scope);
-        })
-        .catch(function(err) {
-          console.warn('[SW] Erro:', err);
-        });
-    }
-
+    // -------------------------------------------------------
     // Botao de instalacao
+    // -------------------------------------------------------
     var deferredPrompt = null;
     var btnInstalar    = document.getElementById('btn-instalar');
 
@@ -166,20 +159,59 @@
       btnInstalar.style.display = 'none';
     });
 
-    // Redirecionar para o GAS
-    // Se ja esta instalado como PWA (standalone), vai direto.
-    // Se nao, aguarda 1.2s para o SW registrar antes de redirecionar.
+    // -------------------------------------------------------
+    // Funcao que efetua o redirect para o GAS
+    // -------------------------------------------------------
+    function redirecionar() {
+      if (!navigator.onLine) {
+        // Sem rede: mostra aviso e tenta novamente em 3s
+        document.getElementById('msg-offline').style.display = 'block';
+        setTimeout(redirecionar, 3000);
+        return;
+      }
+      window.location.replace(GAS_URL);
+    }
+
+    // -------------------------------------------------------
+    // Service Worker + logica de redirect
+    // -------------------------------------------------------
     var isStandalone = window.matchMedia('(display-mode: standalone)').matches
                     || window.navigator.standalone === true;
 
-    if (isStandalone) {
-      // Abrindo como app instalado -- vai imediatamente
-      window.location.replace(GAS_URL);
+    if ('serviceWorker' in navigator) {
+      // Registra o SW
+      navigator.serviceWorker
+        .register('/stockops/sw.js', { scope: '/stockops/' })
+        .then(function(reg) {
+          console.log('[SW] Registrado. Scope:', reg.scope);
+        })
+        .catch(function(err) {
+          console.warn('[SW] Erro no registro:', err);
+        });
+
+      if (isStandalone) {
+        // App instalado: redireciona imediatamente (SW ja esta ativo)
+        redirecionar();
+      } else {
+        // Browser: aguarda o SW estar pronto antes de redirecionar
+        // Garante que o cache do shell esteja populado
+        navigator.serviceWorker.ready.then(function() {
+          console.log('[SW] Pronto. Redirecionando...');
+          redirecionar();
+        });
+
+        // Fallback: se o SW demorar mais de 4s, redireciona mesmo assim
+        setTimeout(function() {
+          if (window.location.href.indexOf('script.google.com') < 0) {
+            console.warn('[SW] Timeout de espera. Redirecionando sem SW.');
+            redirecionar();
+          }
+        }, 4000);
+      }
     } else {
-      // Abrindo no browser -- aguarda SW registrar, depois redireciona
-      setTimeout(function() {
-        window.location.replace(GAS_URL);
-      }, 1500);
+      // Browser sem suporte a SW: redireciona direto
+      console.warn('[SW] Nao suportado neste browser.');
+      redirecionar();
     }
   </script>
 

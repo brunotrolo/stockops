@@ -22,29 +22,31 @@
       background: #0f172a;
       color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0;
-    }
-
-    .splash {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      animation: fadeIn 0.4s ease;
+      padding: 24px;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .app-name {
+    /* -------------------------------------------------- */
+    /* TELA SPLASH                                        */
+    /* -------------------------------------------------- */
+    #tela-splash {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    #tela-splash .app-name {
       font-size: 28px;
       font-weight: 800;
       letter-spacing: -0.03em;
@@ -52,13 +54,13 @@
       text-align: center;
     }
 
-    .app-sub {
+    #tela-splash .app-sub {
       font-size: 11px;
       font-weight: 600;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: #64748b;
-      margin-top: 6px;
+      margin-top: 4px;
       text-align: center;
     }
 
@@ -69,63 +71,154 @@
       border-top-color: #6366f1;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
-      margin-top: 8px;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Area de botoes na base */
-    .btn-area {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
+    /* -------------------------------------------------- */
+    /* TELA DE SELECAO DE AMBIENTE                        */
+    /* -------------------------------------------------- */
+    #tela-selecao {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      width: 100%;
+      max-width: 340px;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .selecao-header {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
-      width: max-content;
+      gap: 14px;
     }
 
-    /* Botao instalar */
+    .selecao-header img {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+    }
+
+    .selecao-header .app-name {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #f1f5f9;
+      text-align: center;
+    }
+
+    .selecao-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #475569;
+      text-align: center;
+      margin-bottom: -16px;
+    }
+
+    /* Grupo dos dois botoes */
+    .env-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .btn-env {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      padding: 20px 24px;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .btn-env:active {
+      transform: scale(0.97);
+    }
+
+    /* Producao */
+    #btn-exec {
+      background: #6366f1;
+      box-shadow: 0 4px 24px rgba(99,102,241,0.45);
+    }
+
+    /* Dev */
+    #btn-dev {
+      background: #1e293b;
+      border: 1px solid #334155;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+
+    .btn-env-icon {
+      font-size: 26px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .btn-env-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .btn-env-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-env-desc {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(241,245,249,0.45);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* -------------------------------------------------- */
+    /* BOTAO INSTALAR PWA (fixo na base)                  */
+    /* -------------------------------------------------- */
     #btn-instalar {
       display: none;
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
       background: #6366f1;
       color: #fff;
       border: none;
       border-radius: 999px;
       padding: 14px 32px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       font-family: inherit;
       cursor: pointer;
       box-shadow: 0 4px 24px rgba(99,102,241,0.5);
       white-space: nowrap;
       animation: fadeIn 0.3s ease;
-      min-width: 180px;
+      z-index: 10;
     }
 
-    /* Botao "Abrir sem instalar" -- aparece apos delay se o de instalar estiver visivel */
-    #btn-abrir {
-      display: none;
-      background: transparent;
-      color: #64748b;
-      border: none;
-      border-radius: 999px;
-      padding: 8px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      white-space: nowrap;
-      animation: fadeIn 0.4s ease;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    /* Mensagem de erro offline */
+    /* -------------------------------------------------- */
+    /* AVISO OFFLINE                                      */
+    /* -------------------------------------------------- */
     #msg-offline {
       display: none;
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
       background: #dc2626;
       color: #fff;
       border-radius: 12px;
@@ -135,13 +228,16 @@
       font-family: inherit;
       white-space: nowrap;
       animation: fadeIn 0.3s ease;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
 
-  <div class="splash">
-    <img src="icon-192.png" alt="StockOps" style="width:96px;height:96px;border-radius:22px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+  <!-- TELA 1: splash enquanto SW registra -->
+  <div id="tela-splash">
+    <img src="icon-192.png" alt="StockOps"
+         style="width:80px;height:80px;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
     <div>
       <p class="app-name">StockOps</p>
       <p class="app-sub">Portfolio de Opcoes</p>
@@ -149,53 +245,97 @@
     <div class="spinner"></div>
   </div>
 
-  <div class="btn-area">
-    <button id="btn-instalar">&#11015; Instalar App</button>
-    <button id="btn-abrir">Abrir sem instalar</button>
-    <div id="msg-offline">Sem conexao. Reconectando...</div>
+  <!-- TELA 2: escolha do ambiente -->
+  <div id="tela-selecao">
+
+    <div class="selecao-header">
+      <img src="icon-192.png" alt="StockOps">
+      <p class="app-name">StockOps</p>
+    </div>
+
+    <p class="selecao-label">Escolha o ambiente</p>
+
+    <div class="env-group">
+
+      <button class="btn-env" id="btn-exec">
+        <span class="btn-env-icon">&#x26A1;</span>
+        <span class="btn-env-text">
+          <span class="btn-env-title">Producao</span>
+          <span class="btn-env-desc">/exec</span>
+        </span>
+      </button>
+
+      <button class="btn-env" id="btn-dev">
+        <span class="btn-env-icon">&#x1F6E0;</span>
+        <span class="btn-env-text">
+          <span class="btn-env-title">Desenvolvimento</span>
+          <span class="btn-env-desc">/dev</span>
+        </span>
+      </button>
+
+    </div>
   </div>
 
+  <!-- Botao de instalacao PWA -->
+  <button id="btn-instalar">&#11015; Instalar App</button>
+
+  <!-- Aviso offline -->
+  <div id="msg-offline">Sem conexao. Verifique a rede.</div>
+
   <script>
-    var GAS_URL = 'https://script.google.com/macros/s/AKfycbzFYVHCWG9D6lfkPuylb5_-uMY5_S0H8rcwDu9pAcXi/dev';
+    // -------------------------------------------------------
+    // URLs -- substitua GAS_EXEC pela sua URL /exec real
+    // -------------------------------------------------------
+    var GAS_DEV  = 'https://script.google.com/macros/s/AKfycbzFYVHCWG9D6lfkPuylb5_-uMY5_S0H8rcwDu9pAcXi/dev';
+    var GAS_EXEC = 'COLE_AQUI_SUA_URL_EXEC';
 
     // -------------------------------------------------------
-    // Estado global
+    // Elementos
     // -------------------------------------------------------
-    var deferredPrompt     = null;
-    var redirectPendente   = false;   // redirect aguardando decisao do usuario
-    var btnInstalar        = document.getElementById('btn-instalar');
-    var btnAbrir           = document.getElementById('btn-abrir');
+    var telaSplash  = document.getElementById('tela-splash');
+    var telaSelecao = document.getElementById('tela-selecao');
+    var btnExec     = document.getElementById('btn-exec');
+    var btnDev      = document.getElementById('btn-dev');
+    var btnInstalar = document.getElementById('btn-instalar');
+    var msgOffline  = document.getElementById('msg-offline');
 
     // -------------------------------------------------------
-    // Funcao que efetua o redirect para o GAS
+    // Redirecionar
     // -------------------------------------------------------
-    function redirecionar() {
+    function redirecionar(url) {
       if (!navigator.onLine) {
-        document.getElementById('msg-offline').style.display = 'block';
-        setTimeout(redirecionar, 3000);
+        msgOffline.style.display = 'block';
+        setTimeout(function() { redirecionar(url); }, 3000);
         return;
       }
-      window.location.replace(GAS_URL);
+      msgOffline.style.display = 'none';
+      window.location.replace(url);
     }
 
     // -------------------------------------------------------
-    // Botao de instalacao
+    // Troca splash -> tela de selecao
     // -------------------------------------------------------
+    function mostrarSelecao() {
+      telaSplash.style.display  = 'none';
+      telaSelecao.style.display = 'flex';
+    }
+
+    // -------------------------------------------------------
+    // Cliques nos botoes de ambiente
+    // -------------------------------------------------------
+    btnExec.addEventListener('click', function() { redirecionar(GAS_EXEC); });
+    btnDev.addEventListener('click',  function() { redirecionar(GAS_DEV);  });
+
+    // -------------------------------------------------------
+    // Botao de instalacao PWA
+    // -------------------------------------------------------
+    var deferredPrompt = null;
+
     window.addEventListener('beforeinstallprompt', function(e) {
       e.preventDefault();
       deferredPrompt = e;
-
-      // Mostra botao de instalar e segura o redirect
       btnInstalar.style.display = 'block';
-      redirectPendente = true;
-      console.log('[PWA] App instalavel -- redirect pausado.');
-
-      // Apos 4s sem acao, mostra opcao "Abrir sem instalar"
-      setTimeout(function() {
-        if (btnInstalar.style.display !== 'none') {
-          btnAbrir.style.display = 'block';
-        }
-      }, 4000);
+      console.log('[PWA] App instalavel.');
     });
 
     btnInstalar.addEventListener('click', function() {
@@ -205,31 +345,17 @@
         console.log('[PWA] Resultado:', result.outcome);
         deferredPrompt = null;
         btnInstalar.style.display = 'none';
-        btnAbrir.style.display = 'none';
-        // Independente de aceitar ou recusar, redireciona
-        redirecionar();
       });
-    });
-
-    // Botao "Abrir sem instalar" -- redireciona direto
-    btnAbrir.addEventListener('click', function() {
-      btnInstalar.style.display = 'none';
-      btnAbrir.style.display = 'none';
-      redirecionar();
     });
 
     window.addEventListener('appinstalled', function() {
       console.log('[PWA] Instalado com sucesso!');
       btnInstalar.style.display = 'none';
-      btnAbrir.style.display = 'none';
     });
 
     // -------------------------------------------------------
-    // Service Worker + logica de redirect
+    // Service Worker + inicializacao
     // -------------------------------------------------------
-    var isStandalone = window.matchMedia('(display-mode: standalone)').matches
-                    || window.navigator.standalone === true;
-
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/stockops/sw.js', { scope: '/stockops/' })
@@ -240,33 +366,23 @@
           console.warn('[SW] Erro no registro:', err);
         });
 
-      if (isStandalone) {
-        // App instalado: redireciona imediatamente (SW ja esta ativo)
-        redirecionar();
-      } else {
-        // Browser: aguarda SW pronto, mas so redireciona se nao houver
-        // prompt de instalacao pendente
-        navigator.serviceWorker.ready.then(function() {
-          console.log('[SW] Pronto.');
-          if (!redirectPendente) {
-            redirecionar();
-          }
-        });
+      // Aguarda SW pronto para mostrar a selecao
+      navigator.serviceWorker.ready.then(function() {
+        console.log('[SW] Pronto.');
+        mostrarSelecao();
+      });
 
-        // Fallback: se SW demorar mais de 5s e nao houver prompt, redireciona
-        setTimeout(function() {
-          if (!redirectPendente && window.location.href.indexOf('script.google.com') < 0) {
-            console.warn('[SW] Timeout de espera. Redirecionando sem SW.');
-            redirecionar();
-          }
-        }, 5000);
-      }
+      // Fallback: mostra selecao apos 4s se SW ainda nao respondeu
+      setTimeout(function() {
+        if (telaSelecao.style.display !== 'flex') {
+          console.warn('[SW] Timeout. Mostrando selecao sem aguardar SW.');
+          mostrarSelecao();
+        }
+      }, 4000);
+
     } else {
-      // Browser sem suporte a SW
-      console.warn('[SW] Nao suportado neste browser.');
-      if (!redirectPendente) {
-        redirecionar();
-      }
+      console.warn('[SW] Nao suportado.');
+      mostrarSelecao();
     }
   </script>
 

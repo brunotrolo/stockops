@@ -1,7 +1,7 @@
 {
-  "name": "OPTN CTRL",
-  "short_name": "OPTN CTRL",
-  "description": "Gestao de Portfolio de Opcoes B3",
+  "name": "StockOps",
+  "short_name": "StockOps",
+  "description": "Gestao de Portfolio de Opcoes",
   "start_url": "/stockops/",
   "scope": "/stockops/",
   "display": "standalone",

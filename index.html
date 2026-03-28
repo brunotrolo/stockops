@@ -74,34 +74,58 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Botao instalar -- aparece via JS */
-    #btn-instalar {
-      display: none;
+    /* Area de botoes na base */
+    .btn-area {
       position: fixed;
       bottom: 32px;
       left: 50%;
       transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: max-content;
+    }
+
+    /* Botao instalar */
+    #btn-instalar {
+      display: none;
       background: #6366f1;
       color: #fff;
       border: none;
       border-radius: 999px;
-      padding: 14px 28px;
-      font-size: 14px;
+      padding: 14px 32px;
+      font-size: 15px;
       font-weight: 700;
       font-family: inherit;
       cursor: pointer;
       box-shadow: 0 4px 24px rgba(99,102,241,0.5);
       white-space: nowrap;
       animation: fadeIn 0.3s ease;
+      min-width: 180px;
+    }
+
+    /* Botao "Abrir sem instalar" -- aparece apos delay se o de instalar estiver visivel */
+    #btn-abrir {
+      display: none;
+      background: transparent;
+      color: #64748b;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      animation: fadeIn 0.4s ease;
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
 
     /* Mensagem de erro offline */
     #msg-offline {
       display: none;
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
       background: #dc2626;
       color: #fff;
       border-radius: 12px;
@@ -125,23 +149,53 @@
     <div class="spinner"></div>
   </div>
 
-  <button id="btn-instalar">Instalar App</button>
-  <div id="msg-offline">Sem conexao. Reconectando...</div>
+  <div class="btn-area">
+    <button id="btn-instalar">&#11015; Instalar App</button>
+    <button id="btn-abrir">Abrir sem instalar</button>
+    <div id="msg-offline">Sem conexao. Reconectando...</div>
+  </div>
 
   <script>
     var GAS_URL = 'https://script.google.com/macros/s/AKfycbzFYVHCWG9D6lfkPuylb5_-uMY5_S0H8rcwDu9pAcXi/dev';
 
     // -------------------------------------------------------
+    // Estado global
+    // -------------------------------------------------------
+    var deferredPrompt     = null;
+    var redirectPendente   = false;   // redirect aguardando decisao do usuario
+    var btnInstalar        = document.getElementById('btn-instalar');
+    var btnAbrir           = document.getElementById('btn-abrir');
+
+    // -------------------------------------------------------
+    // Funcao que efetua o redirect para o GAS
+    // -------------------------------------------------------
+    function redirecionar() {
+      if (!navigator.onLine) {
+        document.getElementById('msg-offline').style.display = 'block';
+        setTimeout(redirecionar, 3000);
+        return;
+      }
+      window.location.replace(GAS_URL);
+    }
+
+    // -------------------------------------------------------
     // Botao de instalacao
     // -------------------------------------------------------
-    var deferredPrompt = null;
-    var btnInstalar    = document.getElementById('btn-instalar');
-
     window.addEventListener('beforeinstallprompt', function(e) {
       e.preventDefault();
       deferredPrompt = e;
+
+      // Mostra botao de instalar e segura o redirect
       btnInstalar.style.display = 'block';
-      console.log('[PWA] App instalavel.');
+      redirectPendente = true;
+      console.log('[PWA] App instalavel -- redirect pausado.');
+
+      // Apos 4s sem acao, mostra opcao "Abrir sem instalar"
+      setTimeout(function() {
+        if (btnInstalar.style.display !== 'none') {
+          btnAbrir.style.display = 'block';
+        }
+      }, 4000);
     });
 
     btnInstalar.addEventListener('click', function() {
@@ -151,26 +205,24 @@
         console.log('[PWA] Resultado:', result.outcome);
         deferredPrompt = null;
         btnInstalar.style.display = 'none';
+        btnAbrir.style.display = 'none';
+        // Independente de aceitar ou recusar, redireciona
+        redirecionar();
       });
+    });
+
+    // Botao "Abrir sem instalar" -- redireciona direto
+    btnAbrir.addEventListener('click', function() {
+      btnInstalar.style.display = 'none';
+      btnAbrir.style.display = 'none';
+      redirecionar();
     });
 
     window.addEventListener('appinstalled', function() {
       console.log('[PWA] Instalado com sucesso!');
       btnInstalar.style.display = 'none';
+      btnAbrir.style.display = 'none';
     });
-
-    // -------------------------------------------------------
-    // Funcao que efetua o redirect para o GAS
-    // -------------------------------------------------------
-    function redirecionar() {
-      if (!navigator.onLine) {
-        // Sem rede: mostra aviso e tenta novamente em 3s
-        document.getElementById('msg-offline').style.display = 'block';
-        setTimeout(redirecionar, 3000);
-        return;
-      }
-      window.location.replace(GAS_URL);
-    }
 
     // -------------------------------------------------------
     // Service Worker + logica de redirect
@@ -179,7 +231,6 @@
                     || window.navigator.standalone === true;
 
     if ('serviceWorker' in navigator) {
-      // Registra o SW
       navigator.serviceWorker
         .register('/stockops/sw.js', { scope: '/stockops/' })
         .then(function(reg) {
@@ -193,25 +244,29 @@
         // App instalado: redireciona imediatamente (SW ja esta ativo)
         redirecionar();
       } else {
-        // Browser: aguarda o SW estar pronto antes de redirecionar
-        // Garante que o cache do shell esteja populado
+        // Browser: aguarda SW pronto, mas so redireciona se nao houver
+        // prompt de instalacao pendente
         navigator.serviceWorker.ready.then(function() {
-          console.log('[SW] Pronto. Redirecionando...');
-          redirecionar();
+          console.log('[SW] Pronto.');
+          if (!redirectPendente) {
+            redirecionar();
+          }
         });
 
-        // Fallback: se o SW demorar mais de 4s, redireciona mesmo assim
+        // Fallback: se SW demorar mais de 5s e nao houver prompt, redireciona
         setTimeout(function() {
-          if (window.location.href.indexOf('script.google.com') < 0) {
+          if (!redirectPendente && window.location.href.indexOf('script.google.com') < 0) {
             console.warn('[SW] Timeout de espera. Redirecionando sem SW.');
             redirecionar();
           }
-        }, 4000);
+        }, 5000);
       }
     } else {
-      // Browser sem suporte a SW: redireciona direto
+      // Browser sem suporte a SW
       console.warn('[SW] Nao suportado neste browser.');
-      redirecionar();
+      if (!redirectPendente) {
+        redirecionar();
+      }
     }
   </script>
 
